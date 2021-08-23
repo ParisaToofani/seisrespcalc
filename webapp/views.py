@@ -4,7 +4,6 @@ import eqsig.single
 from scipy import interpolate
 import numpy as np
 from openseespy.opensees import *
-from data_generation import *
 import math
 import optparse
 from webapp.uniaxialcalc import *
@@ -33,14 +32,19 @@ def read_ground_motion(filename):
     return gm
 
 def response_calc(request):
+    #=================================================================
+    # Get Data
+    #=================================================================
+
+    #=================================================================
     # Start Calc
+    #=================================================================
     wipe()
     maxNumIter = 150
     Tol = 1e-3
     (hysteretic_paramp , hysteretic_paramn) = uniaxial_param_calc.uniaxialCalc(building_type, seismicity , number_of_stories, user_mass)
     wipe()
     model('basic', '-ndm', 2, '-ndf', 2)
-    # height = [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45]
     for k in range(1, number_of_stories + 2):
         if k == 1:
             node(1, 0 , 0)
@@ -97,23 +101,18 @@ def response_calc(request):
     #==================================================================
     # Required Data of Motion 
     #==================================================================
+    # !!! Modify
     eq1 = gm_to_list.read_ground_motion("%s" % gm_record_path +"\\%d-1-1.txt" % num) 
-    eq2 = gm_to_list.read_ground_motion("%s" % gm_record_path +"\\%d-2-1.txt" % num)
     #==================================================================
     # Ground Motion Results Calculation Calculation
     #==================================================================
     gm_dir1 = spectrum_param_calc.SpecCalcParam(eq1, d_t[num], Tn1)
-    gm_dir2 = spectrum_param_calc.SpecCalcParam(eq2, d_t[num], Tn1)
-    gm_dir1_results[str(num)] = {'sa02' : gm_dir1['s_a_02'], 'sa1' : gm_dir1['s_a_1'], 'sat' : gm_dir1['s_a_t'], 'pga' : gm_dir1['PGA']}
-    gm_dir2_results[str(num)] = {'sa02' : gm_dir2['s_a_02'], 'sa1' : gm_dir2['s_a_1'], 'sat' : gm_dir2['s_a_t'], 'pga' : gm_dir2['PGA']}
     #==================================================================
     # Time Series
     #==================================================================
     g = 9.80665
     timeSeries('Path', tag1, '-dt', d_t[num], '-values', *eq1)
-    timeSeries('Path', tag2, '-dt', d_t[num], '-values', *eq2)
     pattern('UniformExcitation', tag1, 1, '-accel', tag1, '-factor', g)
-    pattern('UniformExcitation', tag2, 2, '-accel', tag2, '-factor', g)
 
     wipeAnalysis()
     constraints('Transformation')
@@ -126,17 +125,11 @@ def response_calc(request):
     tFinal = npts[num] * d_t[num]
     
     for i in range(1, number_of_stories+2):
-        u1['eq%d' % num][str(i)] = [0.0]
-        u2['eq%d' % num][str(i)] = [0.0]
-        v1['eq%d' % num][str(i)] = [0.0]
-        v2['eq%d' % num][str(i)] = [0.0]
-        accel1['eq%d' % num][str(i)] = [0.0]
-        accel2['eq%d' % num][str(i)] = [0.0]
-        react1['eq%d' % num][str(i)] = [0.0]
-        react2['eq%d' % num][str(i)] = [0.0]
+        u1[str(i)] = [0.0]
+        v1[str(i)] = [0.0]
+        accel1[str(i)] = [0.0]
     for i in range(1, number_of_stories+1):
-        d1['eq%d' % num]['%d%d' %(i,i+1)] = [0.0]
-        d2['eq%d' % num]['%d%d' %(i,i+1)] = [0.0]
+        d1['%d%d' %(i,i+1)] = [0.0]
     ok = 0
     # print(tCurrent)
     # print(tFinal)
@@ -157,30 +150,20 @@ def response_calc(request):
                     if ok == 0 :
                         tCurrent = tCurrent + d_t[num]
                         for i in range(1,number_of_stories+2):
-                            u1['eq%d' % num][str(i)].append(nodeDisp(i,1))
-                            u2['eq%d' % num][str(i)].append(nodeDisp(i,2))
-                            v1['eq%d' % num][str(i)].append(nodeVel(i,1))
-                            v2['eq%d' % num][str(i)].append(nodeVel(i,2))
-                            accel1['eq%d' % num][str(i)].append(nodeAccel(i,1))
-                            accel2['eq%d' % num][str(i)].append(nodeAccel(i,2))
+                            u1[str(i)].append(nodeDisp(i,1))
+                            v1[str(i)].append(nodeVel(i,1))
+                            accel1[str(i)].append(nodeAccel(i,1))
                             reactions('-dynamic', '-rayleight')
-                            react1['eq%d' % num][str(i)].append(nodeReaction(i,1))
-                            react2['eq%d' % num][str(i)].append(nodeReaction(i,2))
+                            react1[str(i)].append(nodeReaction(i,1))
                         for i in range(1,number_of_stories+1):
-                            d1['eq%d' % num]['%d%d' %(i,i+1)].append((nodeDisp(i+1,1) - nodeDisp(i,1)) / floor_height[i-1])
-                            d2['eq%d' % num]['%d%d' %(i,i+1)].append((nodeDisp(i+1,2) - nodeDisp(i,2)) / floor_height[i-1])
+                            d1['%d%d' %(i,i+1)].append((nodeDisp(i+1,1) - nodeDisp(i,1)) / floor_height[i-1])
     for i in range(1,number_of_stories+2):
-        disp_dir_1['eq%d' % num][str(i)] = max(u1['eq%d' % num][str(i)][:-1], key=abs)
-        disp_dir_2['eq%d' % num][str(i)] = max(u2['eq%d' % num][str(i)][:-1], key=abs)
-        vel_dir_1['eq%d' % num][str(i)] = max(v1['eq%d' % num][str(i)][:-1], key=abs)
-        vel_dir_2['eq%d' % num][str(i)] = max(v2['eq%d' % num][str(i)][:-1], key=abs)
-        accel_dir_1['eq%d' % num][str(i)] = accel1['eq%d' % num][str(i)][:-1]
-        accel_dir_2['eq%d' % num][str(i)] = accel2['eq%d' % num][str(i)][:-1]
-        reaction_dir_1['eq%d' % num][str(i)] = max(react1['eq%d' % num][str(i)][:-1], key=abs)
-        reaction_dir_2['eq%d' % num][str(i)] = max(react2['eq%d' % num][str(i)][:-1], key=abs)
+        disp_dir_1[str(i)] = max(u1[str(i)][:-1], key=abs)
+        vel_dir_1[str(i)] = max(v1[str(i)][:-1], key=abs)
+        accel_dir_1[str(i)] = accel1[str(i)][:-1]
+        reaction_dir_1[str(i)] = max(react1[str(i)][:-1], key=abs)
     for i in range(1,number_of_stories+1):
-        drift_dir_1['eq%d' % num]['%d%d' %(i,i+1)] = max(d1['eq%d' % num]['%d%d' %(i,i+1)], key=abs)
-        drift_dir_2['eq%d' % num]['%d%d' %(i,i+1)] = max(d2['eq%d' % num]['%d%d' %(i,i+1)], key=abs)
+        drift_dir_1['%d%d' %(i,i+1)] = max(d1['%d%d' %(i,i+1)], key=abs)
     wipe()
     
     return

@@ -51,7 +51,7 @@ body {
     margin-right: unset !important;
     width: 100%;
 }
-.input-group input{
+.input-group input, .input-group select{
     background: transparent;
     border: 1px solid black;
     border-radius: 5px !important;

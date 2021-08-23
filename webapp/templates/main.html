@@ -64,7 +64,23 @@
                             <div class="form-group required">
                                 <label for="building_type_hazus" class="col-form-label">Building Type:</label>
                                 <div class="input-group">
-                                    <input type="number" data_type="float" class="form-control" name="building_type_hazus" id="building_type_hazus" placeholder="----">
+                                    <select type="number" data_type="float" class="form-control" name="building_type_hazus" id="building_type_hazus" placeholder="----">
+                                        <option value="1">w1</option>
+                                        <option value="2">w2</option>
+                                        <option value="3">s1</option>
+                                        <option value="4">s2</option>
+                                        <option value="5">s3</option>
+                                        <option value="6">s4</option>
+                                        <option value="7">s5</option>
+                                        <option value="8">c1</option>
+                                        <option value="9">c2</option>
+                                        <option value="10">c3</option>
+                                        <option value="11">pc1</option>
+                                        <option value="12">pc2</option>
+                                        <option value="13">rm1</option>
+                                        <option value="14">rm2</option>
+                                        <option value="15">urm</option>        
+                                    </select>
                                 </div>    
                             </div>
                         </div>
@@ -81,21 +97,38 @@
                     <div class="row">
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 form-line">
                             <div class="form-group required">
-                                <label for="seismic_design_category" class="col-form-label">Seismic Design Categories:</label>
-                                <div class="input-group">
-                                    <input type="number" data_type="float" class="form-control" name="seismic_design_category" id="seismic_design_category" placeholder="----">
-                                </div>    
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 form-line">
-                            <div class="form-group required">
                                 <label for="motion" class="col-form-label">EarthQuake Motion (g):</label>
                                 <div class="input-group">
                                     <input type="file" data_type="float" class="form-control" name="motion" id="motion" placeholder="----">
                                 </div>    
                             </div>
-                        </div>  
+                        </div> 
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 form-line">
+                            <div class="form-group required">
+                                <label for="eq_dt" class="col-form-label">dt (s):</label>
+                                <div class="input-group">
+                                    <input type="number" data_type="float" class="form-control" name="eq_dt" id="eq_dt" placeholder="----">
+                                </div>    
+                            </div>
+                        </div> 
                     </div>
+                    <!--  -->
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 form-line">
+                            <div class="form-group required">
+                                <label for="seismic_design_category" class="col-form-label">Seismic Design Categories:</label>
+                                <div class="input-group">
+                                    <select type="number" data_type="float" class="form-control" name="seismic_design_category" id="seismic_design_category" placeholder="----">
+                                        <option value="0">High Code</option>
+                                        <option value="1">Moderate Code</option>
+                                        <option value="2">Low Code</option>
+                                        <option value="3">Pre Code</option>
+                                    </select>
+                                </div>    
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- -->
                     <div class="row" style="text-align: center;">
                         <button id="calculate">Calculate</button>
@@ -106,5 +139,6 @@
         <!-- Required JavaScript Libraries -->
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
         <script src="{% static 'js/bootstrap.min.js' %}"></script>
+        <script src="{% static 'js/web_ajax.js' %}"></script>
     </body>
 </html>
