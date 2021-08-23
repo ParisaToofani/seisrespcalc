@@ -1,2 +1,2 @@
 # seisrespcalc
-A seismic response calculator Using OpenSeesPy-Django-Python
+A Seismic Response Calculator Using OpenSeesPy-Django-Python
