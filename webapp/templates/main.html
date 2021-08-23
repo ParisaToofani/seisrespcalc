@@ -18,17 +18,93 @@
         {% endblock %}
     </head>
     <body>
-        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
-                <img src="{% static 'img/header.jpg' %}">
-            </div>
-            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
-                <p>
-                    A simple Seismic Response
-                    </br>
-                     Calculator
-                </p>
+        <div class="row">
+            <div class = "col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 col">
+                    <img src="{% static 'img/header.jpg' %}">
+                </div>
+                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8 col" id="head_title">
+                    <p>
+                        A Simple Seismic Response
+                        </br>
+                         Calculator
+                    </p>
+                </div>
             </div>
         </div>
+        <div class="row" id="welcome">
+            <h2>Welcome to The Seismic Response Calculator!</h2>
+            <p>Please Enter the Required Data & Press on the Button</p>
+        </div>
+        <!--  -->
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 container-fluid">
+            <div class="box-style">
+                <form>
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 form-line">
+                            <div class="form-group required">
+                                <label for="number_of_stories" class="col-form-label">Number of Stories:</label>
+                                <div class="input-group">
+                                    <input type="number" data_type="float" class="form-control" name="number_of_stories" id="number_of_stories" placeholder="----">
+                                </div>    
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 form-line">
+                            <div class="form-group required">
+                                <label for="stories_height" class="col-form-label">Stories Height (m):</label>
+                                <div class="input-group">
+                                    <input type="number" data_type="float" class="form-control" name="stories_height" id="stories_height" placeholder="----">
+                                </div>    
+                            </div>
+                        </div>  
+                    </div>
+                    <!--  -->
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 form-line">
+                            <div class="form-group required">
+                                <label for="building_type_hazus" class="col-form-label">Building Type:</label>
+                                <div class="input-group">
+                                    <input type="number" data_type="float" class="form-control" name="building_type_hazus" id="building_type_hazus" placeholder="----">
+                                </div>    
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 form-line">
+                            <div class="form-group required">
+                                <label for="stories_mass" class="col-form-label">Stories Mass (Kg):</label>
+                                <div class="input-group">
+                                    <input type="number" data_type="float" class="form-control" name="stories_mass" id="stories_mass" placeholder="----">
+                                </div>    
+                            </div>
+                        </div>  
+                    </div>
+                    <!-- -->
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 form-line">
+                            <div class="form-group required">
+                                <label for="seismic_design_category" class="col-form-label">Seismic Design Categories:</label>
+                                <div class="input-group">
+                                    <input type="number" data_type="float" class="form-control" name="seismic_design_category" id="seismic_design_category" placeholder="----">
+                                </div>    
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 form-line">
+                            <div class="form-group required">
+                                <label for="motion" class="col-form-label">EarthQuake Motion (g):</label>
+                                <div class="input-group">
+                                    <input type="file" data_type="float" class="form-control" name="motion" id="motion" placeholder="----">
+                                </div>    
+                            </div>
+                        </div>  
+                    </div>
+                    <!-- -->
+                    <div class="row" style="text-align: center;">
+                        <button id="calculate">Calculate</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Required JavaScript Libraries -->
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="{% static 'js/bootstrap.min.js' %}"></script>
     </body>
 </html>

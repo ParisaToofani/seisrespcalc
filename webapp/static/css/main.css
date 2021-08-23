@@ -5,3 +5,67 @@ body {
     overflow-x: hidden;
     /* overflow-y: hidden; */
 }
+#head_title{
+    text-align: center;
+    font-size: 28px;
+    font-weight: bolder;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#head_title p {
+    top: 100%;
+    transform: translateY(100%);
+}
+.row{
+    margin-left: 15px;
+    margin-right: 15px;
+}
+#welcome{
+    text-align: center;
+}
+.container-fluid{
+    margin: unset;
+    padding-bottom: 40px;
+    
+}
+.box-style{
+    margin-left: 200px;
+    margin-right: 200px;
+    border: 1px solid black;
+    border-radius: 15px;
+    padding-top: 25px;
+    padding-bottom: 25px;
+}
+.data{
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.form-control{
+    width: 100%;
+}
+.input-group{
+    margin-right: unset !important;
+    width: 100%;
+}
+.input-group input{
+    background: transparent;
+    border: 1px solid black;
+    border-radius: 5px !important;
+}
+#calculate{
+    background-color: sandybrown;
+    border: 1px solid black;
+    border-radius: 5px;
+    color: black;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+
+  
