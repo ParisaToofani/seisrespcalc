@@ -1,0 +1,7 @@
+body {
+    font-family: 'Montserrat', sans-serif;
+    box-sizing: border-box;
+    background-color: rgb(254, 233, 232);
+    overflow-x: hidden;
+    /* overflow-y: hidden; */
+}
