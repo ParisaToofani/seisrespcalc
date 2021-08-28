@@ -136,6 +136,7 @@ def uniaxialCalc(building_type, seismicity, number_of_stories, mass):
     etta = ((s_a_u - s_a_y) / (s_d_u - s_d_y)) * (s_d_y / s_a_y)
     t_1 = (number_of_stories / n_0) * t_0
     for i in range(1, number_of_stories + 1):
+        print(type(lmbda))
         k_0 = lmbda * mass[i-1] * (4 * math.pi ** 2) / (t_1 ** 2)
         v_y_1 = s_a_y * alpha_1 * mass[i-1] * 9.8086 * number_of_stories * (1 - (i * (i-1)) / (number_of_stories * (number_of_stories + 1)))
         v_y_2 = beta * v_y_1
