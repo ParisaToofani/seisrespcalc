@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.http import HttpResponse, JsonResponse
 # Required library for openseespy analysis
 import eqsig.single
 import math
@@ -29,7 +30,7 @@ def SpecCalcParam(eq1, dt, period):
     return (times, spec)
 
 def response_calc(number_of_stories, haz_build, user_mass, seismicity, stories_height,
-                 eq1, eq_dt):
+                 eq1, eq_dt, floor_height):
     #=================================================================
     # Start Calc
     #=================================================================
@@ -40,8 +41,9 @@ def response_calc(number_of_stories, haz_build, user_mass, seismicity, stories_h
         haz_type = 'l'
     elif number_of_stories >3 and number_of_stories<=7:
         haz_type = 'm'
-    else:
-        number_of_stories = 'h'
+    elif number_of_stories>7:
+        print('hi')
+        haz_type = 'h'
     # 
     buildingclass = {1: "w1",
                     2: "w2",
@@ -146,15 +148,27 @@ def response_calc(number_of_stories, haz_build, user_mass, seismicity, stories_h
     algorithm_dict = {1:'KrylovNewton', 2: 'SecantNewton' , 3:'ModifiedNewton' , 4: 'RaphsonNewton',5: 'PeriodicNewton', 6: 'BFGS', 7: 'Broyden', 8: 'NewtonLineSearch'}
     tFinal = len(eq1) * eq_dt
     
-    # for i in range(1, number_of_stories+2):
-    #     u1[str(i)] = [0.0]
-    #     v1[str(i)] = [0.0]
-    #     accel1[str(i)] = [0.0]
-    # for i in range(1, number_of_stories+1):
-    #     d1['%d%d' %(i,i+1)] = [0.0]
+    #==================================================================
+    # Define Basic Dictionary to Catch Results
+    #================================================================== 
+    # Stories All Steps
+    disp_each_story = {}
+    vel_each_story = {}
+    accel_each_story = {}
+    drift_each_story = {}
+    # 
+    disp_each_story_max = []
+    vel_each_story_max = []
+    accel_modifier_each_story = {}
+    accel_each_story_max = []
+    drift_each_story_max = []
+    for i in range(1, number_of_stories+2):
+        disp_each_story[str(i)] = [0.0]
+        vel_each_story[str(i)] = [0.0]
+        accel_each_story[str(i)] = [0.0]
+    for i in range(1, number_of_stories+1):
+        drift_each_story['%d%d' %(i,i+1)] = [0.0]
     ok = 0
-    # print(tCurrent)
-    # print(tFinal)
     while tCurrent < tFinal:
         for s in test_dict:
             for j in algorithm_dict: 
@@ -171,50 +185,64 @@ def response_calc(number_of_stories, haz_build, user_mass, seismicity, stories_h
                     ok = analyze(1, eq_dt)
                     if ok == 0 :
                         tCurrent = tCurrent + eq_dt
-    #                     for i in range(1,number_of_stories+2):
-    #                         u1[str(i)].append(nodeDisp(i,1))
-    #                         v1[str(i)].append(nodeVel(i,1))
-    #                         accel1[str(i)].append(nodeAccel(i,1))
-    #                         reactions('-dynamic', '-rayleight')
-    #                         react1[str(i)].append(nodeReaction(i,1))
-    #                     for i in range(1,number_of_stories+1):
-    #                         d1['%d%d' %(i,i+1)].append((nodeDisp(i+1,1) - nodeDisp(i,1)) / floor_height[i-1])
-    # for i in range(1,number_of_stories+2):
-    #     disp_dir_1[str(i)] = max(u1[str(i)][:-1], key=abs)
-    #     vel_dir_1[str(i)] = max(v1[str(i)][:-1], key=abs)
-    #     accel_dir_1[str(i)] = accel1[str(i)][:-1]
-    #     reaction_dir_1[str(i)] = max(react1[str(i)][:-1], key=abs)
-    # for i in range(1,number_of_stories+1):
-    #     drift_dir_1['%d%d' %(i,i+1)] = max(d1['%d%d' %(i,i+1)], key=abs)
+                        for i in range(1,number_of_stories+2):
+                            disp_each_story[str(i)].append(nodeDisp(i,1))
+                            vel_each_story[str(i)].append(nodeVel(i,1))
+                            accel_each_story[str(i)].append(nodeAccel(i,1))
+                        for i in range(1,number_of_stories+1):
+                            drift_each_story['%d%d' %(i,i+1)].append((nodeDisp(i+1,1) - nodeDisp(i,1)) / floor_height[i-1])
+    for i in range(1,number_of_stories+2):
+        disp_each_story_max.append(abs(max(disp_each_story[str(i)][:-1], key=abs)))
+        vel_each_story_max.append(abs(max(vel_each_story[str(i)][:-1], key=abs)))
+        # accel_each_story_max[str(i)] = accel_each_story[str(i)][:-1]
+        # 
+        # ========================================
+        # accel generator
+        # Here i create absolute acceleration !!!
+        # ========================================
+        rec_required = eq1
+        rec_required.append(0)
+        rec_required.insert(0, 0)
+        # Absolute Acceleration
+        accel_modifier_each_story[str(i)] = [ items1 / g + items2 for items1, items2 in zip(accel_each_story[str(i)][:-1], rec_required)]
+        accel_each_story_max.append(abs(max(accel_modifier_each_story[str(i)][:-1], key=abs)))
+    for i in range(1,number_of_stories+1):
+        drift_each_story_max.append(abs(max(drift_each_story['%d%d' %(i,i+1)], key=abs)))
     wipe()
-    
-    return
+    return (disp_each_story_max, vel_each_story_max, accel_each_story_max, drift_each_story_max)
 
 # Create your views here.
 def main_project(request):
-    if request.POST:
-        number_of_stories = int(request.POST.get('number_of_stories'))
-        story_height = float(request.POST.get('stories_height'))
-        building_type_hazus = int(request.POST.get('building_type_hazus'))
-        stories_mass = request.POST.get('stories_mass')
-        eq_dt = float(request.POST.get('eq_dt'))
-        seismic_design_category = request.POST.get('seismic_design_category')
-        seis_uni = {'0' : 'H', '1' : 'M', '2' : 'L', '3' : 'Pre'}
-        seismicity = seis_uni[seismic_design_category] 
-        # read ground motion data
-        motion= request.FILES['motion'].read().decode("utf-8")
-        data = motion.split('\n')
-        eq1 = read_ground_motion(data)
-        # 
-        stories_height = []
-        floor_height = []
-        user_mass = []
-        height = 0.0
-        for i in range(1, int(number_of_stories) + 1):
-            height += story_height
-            stories_height.append(height)
-            floor_height.append(story_height)
-            user_mass.append(stories_mass)
-        response_calc(number_of_stories, building_type_hazus, np.array(user_mass, dtype=np.float64), seismicity, 
-                      stories_height, eq1, eq_dt)
     return render(request, 'main.html')
+
+def resp_estimate(request):
+    # if request.POST or request.is_ajax():
+    number_of_stories = int(request.POST.get('number_of_stories'))
+    story_height = float(request.POST.get('stories_height'))
+    building_type_hazus = int(request.POST.get('building_type_hazus'))
+    stories_mass = request.POST.get('stories_mass')
+    eq_dt = float(request.POST.get('eq_dt'))
+    seismic_design_category = request.POST.get('seismic_design_category')
+    seis_uni = {'0' : 'H', '1' : 'M', '2' : 'L', '3' : 'Pre'}
+    seismicity = seis_uni[seismic_design_category] 
+    # read ground motion data
+    motion= request.FILES['motion'].read().decode("utf-8")
+    data = motion.split('\n')
+    eq1 = read_ground_motion(data)
+    # 
+    stories_height = []
+    floor_height = []
+    user_mass = []
+    height = 0.0
+    for i in range(1, int(number_of_stories) + 1):
+        height += story_height
+        stories_height.append(height)
+        floor_height.append(story_height)
+        user_mass.append(stories_mass)
+    (disp_each_story_max, vel_each_story_max, accel_each_story_max, drift_each_story_max) = response_calc(number_of_stories, building_type_hazus, np.array(user_mass, dtype=np.float64), seismicity, 
+                                                                                                          stories_height, eq1, eq_dt, floor_height)
+    response = {'disp_each_story_max' : disp_each_story_max,
+                'vel_each_story_max' : vel_each_story_max, 
+                'accel_each_story_max' : accel_each_story_max, 
+                'drift_each_story_max' : drift_each_story_max}
+    return JsonResponse(response)
