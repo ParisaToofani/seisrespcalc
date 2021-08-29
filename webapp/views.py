@@ -229,7 +229,19 @@ def resp_estimate(request):
     motion= request.FILES['motion'].read().decode("utf-8")
     data = motion.split('\n')
     eq1 = read_ground_motion(data)
-    # 
+    # ==========================================================
+    # Data for Records
+    rec_d_t = []
+    for num in range(0, len(eq1)+1):
+        rec_d_t.append(num * eq_dt)
+    # Data for Spectrum
+    periods = np.linspace(0.0, 4, 400)
+    record = eqsig.AccSignal(eq1, eq_dt)   # define record in eqsig
+    record.generate_response_spectrum(response_times=periods) # generate response spectrum
+    spec = record.s_a
+
+
+    # ==========================================================
     stories_height = []
     floor_height = []
     user_mass = []
@@ -241,8 +253,13 @@ def resp_estimate(request):
         user_mass.append(stories_mass)
     (disp_each_story_max, vel_each_story_max, accel_each_story_max, drift_each_story_max) = response_calc(number_of_stories, building_type_hazus, np.array(user_mass, dtype=np.float64), seismicity, 
                                                                                                           stories_height, eq1, eq_dt, floor_height)
+    drift_each_story_max.insert(0, 0)
     response = {'disp_each_story_max' : disp_each_story_max,
                 'vel_each_story_max' : vel_each_story_max, 
                 'accel_each_story_max' : accel_each_story_max, 
-                'drift_each_story_max' : drift_each_story_max}
+                'drift_each_story_max' : drift_each_story_max,
+                'periods' : periods.tolist(),
+                'spec' : spec.tolist(),
+                'eq': eq1,
+                'rec_d_t': rec_d_t}
     return JsonResponse(response)

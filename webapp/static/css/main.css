@@ -77,5 +77,21 @@ body {
     z-index: 2;
     cursor: pointer;
 }
+#container_disp, #container_accel, #container_drift{
+    width: 200px;
+    height: 200px;
+}
+#main_results{
+    padding-top: 25px;
+    display: none;
+}
+#spec_results{
+    padding-top: 25px;
+    display: none;
+}
+#container_rec, #container_spec{
+    width: 300px;
+    height: 200px;
+}
 
   
